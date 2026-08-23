@@ -74,6 +74,20 @@ export default function CatalogClient() {
     return 'In stock';
   }
 
+  function addToCart(p: Product) {
+    try {
+      const current = JSON.parse(localStorage.getItem('sellpilot-cart') || '[]');
+      const found = current.find((i: { productId: string }) => i.productId === p.id);
+      const next = found
+        ? current.map((i: { productId: string; quantity: number }) => i.productId === p.id ? { ...i, quantity: Math.min(5, i.quantity + 1) } : i)
+        : [...current, { productId: p.id, name: p.name, price: p.price, quantity: 1 }];
+      localStorage.setItem('sellpilot-cart', JSON.stringify(next));
+      window.location.href = '/checkout';
+    } catch {
+      setError('Unable to create cart.');
+    }
+  }
+
   return (
     <div className="max-w-6xl mx-auto p-4">
       <h1 className="text-2xl font-semibold mb-4">Catalog</h1>
@@ -109,6 +123,13 @@ export default function CatalogClient() {
             <div className="mt-3 flex flex-wrap gap-2">
               {p.tags.map((t) => (<span key={t} className="text-xs bg-gray-100 px-2 py-1 rounded">{t}</span>))}
             </div>
+            <button
+              disabled={p.inventory <= 0}
+              onClick={() => addToCart(p)}
+              className="mt-4 w-full rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {p.inventory > 0 ? 'Buy / Checkout' : 'Out of stock'}
+            </button>
           </div>
         ))}
       </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
 import {
   LayoutDashboard,
   Bot,
@@ -14,57 +16,30 @@ import {
   Activity,
 } from "lucide-react";
 
-const stats = [
-  {
-    title: "Total Revenue",
-    value: "₹1,84,290",
-    change: "+18.4%",
-    icon: TrendingUp,
-  },
-  {
-    title: "AI Generated Revenue",
-    value: "₹42,800",
-    change: "+24.6%",
-    icon: Sparkles,
-  },
-  {
-    title: "Orders",
-    value: "486",
-    change: "+12.8%",
-    icon: ShoppingCart,
-  },
-  {
-    title: "Conversion Rate",
-    value: "8.42%",
-    change: "+2.1%",
-    icon: Activity,
-  },
-];
-
-const activities = [
-  {
-    title: "AI recommended KeyPro K2",
-    description: "Customer looking for programming keyboard",
-    time: "2 min ago",
-  },
-  {
-    title: "Upsell approved",
-    description: "Mouse M1 added to customer order",
-    time: "8 min ago",
-  },
-  {
-    title: "Razorpay test order created",
-    description: "Order amount: ₹3,198",
-    time: "15 min ago",
-  },
-  {
-    title: "Campaign opportunity detected",
-    description: "Keyboard → Mouse bundle",
-    time: "32 min ago",
-  },
+const opportunityStats = [
+  { title: "Total Revenue", key: "revenue", icon: TrendingUp },
+  { title: "AI Generated Revenue", key: "aiRevenue", icon: Sparkles },
+  { title: "Orders", key: "orders", icon: ShoppingCart },
+  { title: "Conversion Rate", key: "conversion", icon: Activity },
 ];
 
 export default function Home() {
+  const [dashboard, setDashboard] = useState({ revenue: 0, paidOrders: 0, totalOrders: 0, conversionRate: 0, activities: [] as Array<{ action: string; reason: string; amount?: number; status: string; createdAt: string }> });
+
+  useEffect(() => {
+    fetch("/api/dashboard").then((r) => r.json()).then((data) => setDashboard(data)).catch(() => undefined);
+  }, []);
+
+  const stats = opportunityStats.map((s) => ({
+    ...s,
+    value:
+      s.key === "revenue" ? new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(dashboard.revenue / 100) :
+      s.key === "aiRevenue" ? "—" :
+      s.key === "orders" ? String(dashboard.paidOrders) :
+      `${dashboard.conversionRate}%`,
+    change: s.key === "aiRevenue" ? "recommendations" : "live",
+  }));
+
   return (
     <main className="min-h-screen bg-[#08090d] text-white">
       {/* Sidebar */}
@@ -84,8 +59,8 @@ export default function Home() {
 
         <nav className="space-y-2">
           <NavItem icon={<LayoutDashboard size={18} />} text="Dashboard" active />
-          <NavItem icon={<Bot size={18} />} text="AI Agent" />
-          <NavItem icon={<Package size={18} />} text="Catalog" />
+          <NavItem icon={<Bot size={18} />} text="AI Agent" href="/agent" />
+          <NavItem icon={<Package size={18} />} text="Catalog" href="/catalog" />
           <NavItem icon={<Megaphone size={18} />} text="Campaigns" />
           <NavItem icon={<ShieldCheck size={18} />} text="Audit Trail" />
         </nav>
@@ -146,7 +121,7 @@ export default function Home() {
 
               <div className="mt-3 flex items-end gap-3">
                 <h3 className="text-4xl font-semibold tracking-tight">
-                  ₹42,800
+                  {new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(dashboard.revenue / 100)}
                 </h3>
 
                 <span className="mb-1 flex items-center gap-1 text-sm text-emerald-400">
@@ -250,25 +225,16 @@ export default function Home() {
             </p>
 
             <div className="mt-6 space-y-5">
-              {activities.map((activity) => (
-                <div
-                  key={activity.title}
-                  className="flex gap-3"
-                >
+              {dashboard.activities.length === 0 && (
+                <p className="text-sm text-gray-500">No agent or payment activity yet.</p>
+              )}
+              {dashboard.activities.map((activity, index) => (
+                <div key={`${activity.action}-${index}`} className="flex gap-3">
                   <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
-
                   <div>
-                    <p className="text-sm font-medium">
-                      {activity.title}
-                    </p>
-
-                    <p className="mt-1 text-xs leading-5 text-gray-500">
-                      {activity.description}
-                    </p>
-
-                    <p className="mt-1 text-[11px] text-gray-600">
-                      {activity.time}
-                    </p>
+                    <p className="text-sm font-medium">{activity.action}</p>
+                    <p className="mt-1 text-xs leading-5 text-gray-500">{activity.reason}</p>
+                    <p className="mt-1 text-[11px] text-gray-600">{activity.createdAt}</p>
                   </div>
                 </div>
               ))}
@@ -294,9 +260,9 @@ export default function Home() {
             </div>
           </div>
 
-          <button className="rounded-xl bg-white px-5 py-3 text-sm font-medium text-black transition hover:bg-gray-200">
+          <a href="/agent" className="rounded-xl bg-white px-5 py-3 text-sm font-medium text-black transition hover:bg-gray-200">
             Open AI Agent
-          </button>
+          </a>
         </div>
       </section>
     </main>
@@ -307,13 +273,15 @@ function NavItem({
   icon,
   text,
   active = false,
+  href,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   text: string;
   active?: boolean;
+  href?: string;
 }) {
   return (
-    <div
+    <a href={href || "#"}
       className={`flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
         active
           ? "bg-white text-black"
@@ -322,7 +290,7 @@ function NavItem({
     >
       {icon}
       <span>{text}</span>
-    </div>
+    </a>
   );
 }
 

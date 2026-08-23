@@ -49,6 +49,12 @@ model Order {
   merchant        Merchant @relation(fields: [merchantId], references: [id])
 
   razorpayOrderId String?  @unique
+  receipt         String?
+  razorpayPaymentId String?
+  razorpaySignature String?
+  customerName   String?
+  customerEmail  String?
+  customerContact String?
   amount          Int
   currency        String   @default("INR")
   status          String   @default("PENDING")
@@ -58,6 +64,7 @@ model Order {
 
   items     OrderItem[]
   auditLogs AuditLog[]
+  payments  Payment[]
 }
 
 model OrderItem {
@@ -86,5 +93,28 @@ model AuditLog {
   status   String
   metadata String?
 
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id                String   @id
+  orderId           String
+  razorpayPaymentId String?  @unique
+  razorpayOrderId   String?
+  signature         String?
+  amount            Int
+  currency          String   @default("INR")
+  status            String   @default("CREATED")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id])
+  @@index([orderId])
+}
+
+model WebhookEvent {
+  id        String   @id
+  event     String
+  payload   String
   createdAt DateTime @default(now())
 }
