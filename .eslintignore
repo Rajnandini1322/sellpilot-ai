@@ -1,0 +1,9 @@
+.next/
+node_modules/
+.prisma/
+.dev/
+dev.db
+prisma/seed.js
+prisma/seed_sql.js
+scripts/
+types/sqljs.d.ts

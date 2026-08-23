@@ -1,0 +1,20 @@
+{
+  "root": true,
+  "ignorePatterns": [
+    "prisma/*.js",
+    "prisma/seed_sql.js",
+    "scripts/*",
+    "dev.db",
+    "types/sqljs.d.ts",
+    ".next/*",
+    "node_modules/*"
+  ],
+  "overrides": [
+    {
+      "files": ["types/sqljs.d.ts"],
+      "rules": {
+        "@typescript-eslint/no-explicit-any": "off"
+      }
+    }
+  ]
+}
