@@ -1,10 +1,22 @@
 import fs from 'fs';
+import path from 'path';
 import initSqlJs from 'sql.js';
 
 const DB_PATH = './dev.db';
 
 async function openDb() {
-  const SQL = await initSqlJs();
+  const wasmPath = path.join(
+    process.cwd(),
+    'node_modules',
+    'sql.js',
+    'dist',
+    'sql-wasm.wasm'
+  );
+
+  const SQL = await initSqlJs({
+    locateFile: () => wasmPath,
+  });
+
   const file = fs.readFileSync(DB_PATH);
   return new SQL.Database(new Uint8Array(file));
 }
