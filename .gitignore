@@ -53,3 +53,6 @@ lib_backup/
 
 # Local README backup
 README.backup.md
+
+# Backup source files
+*.backup.tsx
