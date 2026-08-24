@@ -1,10 +1,10 @@
-# SellPilot AI - AI Revenue Assistant
+# SellPilot AI — AI Revenue Assistant
 
-SellPilot AI is an AI-assisted commerce platform designed to help merchants increase revenue through intelligent product discovery, recommendations, upselling, cross-selling, campaigns, secure checkout, and revenue analytics.
+SellPilot AI is an AI-assisted commerce platform that helps merchants discover products, increase revenue through intelligent recommendations, upselling and cross-selling, manage campaigns, and complete secure customer-approved checkout.
 
 ## Overview
 
-SellPilot acts as a revenue assistant for merchants. It analyzes the product catalog and customer shopping intent to identify relevant products and revenue opportunities.
+SellPilot acts as a revenue assistant for merchants. It analyzes customer shopping intent and the product catalog to identify relevant products and revenue opportunities while keeping payment authorization under explicit customer control.
 
 ## Key Features
 
@@ -18,21 +18,22 @@ SellPilot acts as a revenue assistant for merchants. It analyzes the product cat
 - Inventory-aware recommendations
 
 ### Merchant Dashboard
-- Total revenue
-- Paid orders
+- Total revenue tracking
+- Paid order tracking
 - Conversion rate
-- AI revenue opportunity
+- AI-generated revenue opportunities
 - Revenue opportunity cards
 - Recent agent activity
 
-### Commerce and Checkout
-- Product catalog
+### Commerce and Secure Checkout
+- Product catalog management
 - Add-to-cart functionality
 - Server-side Razorpay order creation
 - Razorpay Test Mode integration
 - Server-side payment signature verification
 - Payment and order status tracking
 - Inventory update after successful payment
+- Explicit customer approval before payment
 
 ### Campaign Management
 - Create campaigns
@@ -47,19 +48,53 @@ SellPilot acts as a revenue assistant for merchants. It analyzes the product cat
 - HMAC-SHA256 Razorpay signature verification
 - Customer approval before payment
 - Environment secrets excluded from Git
+- Policy-based transaction validation
 
-## Local Setup
+## Technology Stack
 
-npm install
-copy .env.example .env
-node prisma/seed_sql.js
-npx prisma generate
-npm run typecheck
-npm run lint
-npm run test
-npm run build
-npm run dev
+- Next.js 16
+- React
+- TypeScript
+- Prisma
+- SQLite / SQL.js
+- Razorpay Test Mode
+- Vitest
+- ESLint
+- Turbopack
 
-## Project Status
+## Project Structure
 
-SellPilot AI is implemented as a working prototype for AI-assisted merchant revenue optimization using Razorpay Test Mode.
+```text
+sellpilot-ai/
+├── app/
+│   ├── api/
+│   │   ├── agent/
+│   │   ├── audit-trail/
+│   │   ├── campaigns/
+│   │   ├── catalog/
+│   │   ├── checkout/
+│   │   ├── dashboard/
+│   │   └── orders/
+│   ├── agent/
+│   ├── audit-trail/
+│   ├── campaigns/
+│   ├── catalog/
+│   ├── checkout/
+│   ├── settings/
+│   └── page.tsx
+│
+├── components/
+├── lib/
+│   ├── ai/
+│   ├── catalog/
+│   ├── payments/
+│   ├── policies/
+│   └── db/
+│
+├── prisma/
+├── scripts/
+├── tests/
+├── types/
+├── .env.example
+├── package.json
+└── README.md
