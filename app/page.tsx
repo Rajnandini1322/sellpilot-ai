@@ -59,6 +59,23 @@ function formatINR(paise: number) {
   }).format(paise / 100);
 }
 
+function formatTime(value: string) {
+  const date = new Date(value.replace(" ", "T") + "Z");
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default function Home() {
   const [dashboard, setDashboard] = useState<DashboardData>({
     revenue: 0,
@@ -434,7 +451,7 @@ export default function Home() {
                       </p>
 
                       <p className="mt-1 text-[11px] text-gray-600">
-                        {activity.createdAt}
+                        {formatTime(activity.createdAt)}
                       </p>
                     </div>
                   </div>
