@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { searchProducts, getProduct } from './index';
+import { searchProducts, getProduct } from "./index";
 
 export type UpsellInput = {
   productId: string;
@@ -15,27 +15,29 @@ export async function getUpsell({ productId }: UpsellInput) {
     limit: 50,
   });
 
-  // First preference:
-  // higher-priced products from same category
+  // Only available products that are more expensive than the base product.
   const higherValue = candidates
     .filter(
       (c: any) =>
         c.id !== base.id &&
         c.inventory > 0 &&
-        c.price > base.price
+        Number(c.price) > Number(base.price)
     )
-    .sort((a: any, b: any) => a.price - b.price);
+    .sort(
+      (a: any, b: any) =>
+        Number(a.price) - Number(b.price)
+    );
 
+  // Prefer the closest higher-priced product.
   if (higherValue.length > 0) {
     return higherValue.slice(0, 3).map((p: any) => ({
       product: p,
-      reason: `Higher-value option in the same ${base.category} category.`,
+      reason: `Premium upgrade: ${p.name} costs more than ${base.name}.`,
     }));
   }
 
-  // Fallback:
-  // If no higher-priced product exists, return
-  // other available products from the same category.
+  // No premium product available.
+  // Return alternatives, but NEVER return the base product itself.
   const alternatives = candidates
     .filter(
       (c: any) =>
@@ -44,8 +46,8 @@ export async function getUpsell({ productId }: UpsellInput) {
     )
     .sort(
       (a: any, b: any) =>
-        Math.abs(a.price - base.price) -
-        Math.abs(b.price - base.price)
+        Math.abs(Number(a.price) - Number(base.price)) -
+        Math.abs(Number(b.price) - Number(base.price))
     );
 
   return alternatives.slice(0, 3).map((p: any) => ({
