@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { searchProducts, getProduct } from './index';
 
 export type CrossSellInput = { productId: string };

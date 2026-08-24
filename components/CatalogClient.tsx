@@ -41,7 +41,7 @@ export default function CatalogClient() {
       setProducts(data.products || []);
       setPagination(data.pagination || null);
       // derive categories from returned products if not already set
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const cats = Array.from(new Set((data.products || []).map((p: any) => String(p.category)).filter(Boolean)));
       setCategories(cats as string[]);
     } catch (e: unknown) {
@@ -55,7 +55,7 @@ export default function CatalogClient() {
 
   useEffect(() => {
     // fetchCatalog updates state; avoid the "set-state-in-effect" lint by calling it inside a microtask
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     fetchCatalog();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, category, page]);

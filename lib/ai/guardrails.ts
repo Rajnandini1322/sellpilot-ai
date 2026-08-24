@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 export function checkForPaymentIntent(message: string) {
   const low = message.toLowerCase();
   const triggers = ['buy', 'pay', 'checkout', 'purchase', 'order now', 'charge'];

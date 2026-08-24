@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { seed } from '../prisma/seed';
 import { searchProducts } from '../lib/ai/tools/searchProducts';
 import { getProduct } from '../lib/ai/tools/getProduct';

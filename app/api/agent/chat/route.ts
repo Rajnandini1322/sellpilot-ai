@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 
 import { AgentInputSchema } from '../../../../lib/ai/schema';
 import { DeterministicProvider } from '../../../../lib/ai/provider';

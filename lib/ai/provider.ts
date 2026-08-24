@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { AgentInput, AgentResponse, AgentResponseSchema, Intent } from './schema';
 import { searchProducts } from './tools';
 import { setLastProduct } from './session';

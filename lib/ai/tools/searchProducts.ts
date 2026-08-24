@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { getProducts } from '../../catalog';
 
 export type SearchInput = { query?: string; category?: string; limit?: number };

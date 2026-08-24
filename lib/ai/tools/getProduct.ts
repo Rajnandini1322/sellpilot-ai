@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 import { getProductById } from '../../catalog';
 
 export type GetProductInput = { productId: string };
