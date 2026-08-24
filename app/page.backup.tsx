@@ -198,13 +198,11 @@ export default function Home() {
           <NavItem
             icon={<Megaphone size={18} />}
             text="Campaigns"
-            href="/campaigns"
           />
 
           <NavItem
             icon={<ShieldCheck size={18} />}
             text="Audit Trail"
-            href="/audit-trail"
           />
         </nav>
 
@@ -254,7 +252,7 @@ export default function Home() {
 
           <div className="flex items-center gap-3">
             <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs text-emerald-400">
-              â— Razorpay Test Mode
+              ● Razorpay Test Mode
             </div>
 
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-black">
@@ -549,6 +547,3 @@ function Opportunity({
     </div>
   );
 }
-
-
-

@@ -16,59 +16,61 @@ model Merchant {
   products  Product[]
   orders    Order[]
   auditLogs AuditLog[]
+  campaigns Campaign[]
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  merchantId  String
-  merchant    Merchant @relation(fields: [merchantId], references: [id])
+  id         String   @id @default(cuid())
+  merchantId String
+  merchant   Merchant @relation(fields: [merchantId], references: [id])
 
   name        String
   description String
   category    String
   price       Int
-  currency    String   @default("INR")
-  inventory   Int      @default(0)
+  currency    String  @default("INR")
+  inventory   Int     @default(0)
   tags        Json
-  active      Boolean  @default(true)
+  active      Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   orderItems OrderItem[]
 
+  @@unique([merchantId, name])
   @@index([merchantId])
   @@index([category])
   @@index([active])
-  @@unique([merchantId, name])
 }
 
 model Order {
-  id              String   @id @default(cuid())
-  merchantId      String
-  merchant        Merchant @relation(fields: [merchantId], references: [id])
+  id         String   @id @default(cuid())
+  merchantId String
+  merchant   Merchant @relation(fields: [merchantId], references: [id])
 
-  razorpayOrderId String?  @unique
-  receipt         String?
+  razorpayOrderId   String? @unique
+  receipt           String?
   razorpayPaymentId String?
   razorpaySignature String?
-  customerName   String?
-  customerEmail  String?
-  customerContact String?
-  amount          Int
-  currency        String   @default("INR")
-  status          String   @default("PENDING")
+  customerName      String?
+  customerEmail     String?
+  customerContact   String?
+  amount            Int
+  currency          String  @default("INR")
+  status            String  @default("PENDING")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   items     OrderItem[]
   auditLogs AuditLog[]
+  campaigns Campaign[]
   payments  Payment[]
 }
 
 model OrderItem {
-  id        String  @id @default(cuid())
+  id        String @id @default(cuid())
   orderId   String
   productId String
 
@@ -109,6 +111,7 @@ model Payment {
   updatedAt         DateTime @updatedAt
 
   order Order @relation(fields: [orderId], references: [id])
+
   @@index([orderId])
 }
 
@@ -117,4 +120,25 @@ model WebhookEvent {
   event     String
   payload   String
   createdAt DateTime @default(now())
+}
+
+model Campaign {
+  id         String   @id @default(cuid())
+  merchantId String
+  merchant   Merchant @relation(fields: [merchantId], references: [id])
+
+  name        String
+  type        String
+  status      String @default("DRAFT")
+  audience    String
+  performance Float  @default(0)
+  revenue     Int    @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  order     Order?   @relation(fields: [orderId], references: [id])
+  orderId   String?
+
+  @@index([merchantId])
+  @@index([status])
 }
