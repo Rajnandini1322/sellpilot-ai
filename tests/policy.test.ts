@@ -87,7 +87,7 @@ describe("Purchase Policy Engine", () => {
       },
       {
         ...activeProduct,
-        price: 250000,
+        price: 1250000,
         inventory: 10,
       },
     );
