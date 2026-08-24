@@ -188,3 +188,69 @@ export async function POST(request: Request) {
     db?.close();
   }
 }
+
+export async function PATCH(request: Request) {
+  let db: any;
+
+  try {
+    const body = await request.json();
+
+    const id = String(body.id || "").trim();
+    const status = String(body.status || "").trim().toUpperCase();
+
+    if (!id || !["ACTIVE", "DRAFT"].includes(status)) {
+      return NextResponse.json(
+        { error: "Valid campaign id and status are required." },
+        { status: 400 }
+      );
+    }
+
+    db = await openSqlite();
+    ensureCommerceTables(db);
+
+    const safeId = id.replace(/'/g, "''");
+
+    const existing = db.exec(`
+      SELECT id
+      FROM "Campaign"
+      WHERE id = '${safeId}'
+      LIMIT 1;
+    `);
+
+    if (!existing?.[0]?.values?.length) {
+      return NextResponse.json(
+        { error: "Campaign not found." },
+        { status: 404 }
+      );
+    }
+
+    const now = new Date().toISOString();
+
+    db.run(
+      `
+      UPDATE "Campaign"
+      SET status = ?, "updatedAt" = ?
+      WHERE id = ?
+      `,
+      [status, now, id]
+    );
+
+    persistSqlite(db);
+
+    return NextResponse.json({
+      success: true,
+      id,
+      status,
+      updatedAt: now,
+    });
+  } catch (error) {
+    console.error("Campaign PATCH error:", error);
+
+    return NextResponse.json(
+      { error: "Failed to update campaign status" },
+      { status: 500 }
+    );
+  } finally {
+    db?.close();
+  }
+}

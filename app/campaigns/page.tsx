@@ -39,6 +39,7 @@ export default function CampaignsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const [name, setName] = useState("");
   const [type, setType] = useState("Upsell");
@@ -76,6 +77,25 @@ export default function CampaignsPage() {
   useEffect(() => {
     loadCampaigns();
   }, []);
+
+  async function toggleCampaign(campaign: Campaign) {
+    try {
+      setUpdatingId(campaign.id);
+      const nextStatus = campaign.status === "ACTIVE" ? "DRAFT" : "ACTIVE";
+      const response = await fetch("/api/campaigns", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: campaign.id, status: nextStatus }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to update campaign");
+      await loadCampaigns();
+    } catch (error: any) {
+      alert(error?.message || "Failed to update campaign");
+    } finally {
+      setUpdatingId(null);
+    }
+  }
 
   async function createCampaign() {
     if (!name.trim()) {
@@ -249,7 +269,24 @@ export default function CampaignsPage() {
                         </p>
                       </div>
 
-                      <div className="flex gap-8">
+                      <div className="flex items-center gap-4">
+                        <button
+                          onClick={() => toggleCampaign(campaign)}
+                          disabled={updatingId === campaign.id}
+                          className={`rounded-lg px-3 py-2 text-xs font-medium ${
+                            campaign.status === "ACTIVE"
+                              ? "bg-yellow-400/10 text-yellow-400"
+                              : "bg-emerald-400/10 text-emerald-400"
+                          } disabled:opacity-50`}
+                        >
+                          {updatingId === campaign.id
+                            ? "Updating..."
+                            : campaign.status === "ACTIVE"
+                              ? "Set Draft"
+                              : "Activate"}
+                        </button>
+
+                        <div className="flex gap-8">
                         <Metric
                           label="Conversion"
                           value={
@@ -268,6 +305,7 @@ export default function CampaignsPage() {
                       </div>
                     </div>
                   </div>
+                </div>
                 ))}
               </div>
             )}
@@ -424,3 +462,9 @@ function Metric({
     </div>
   );
 }
+
+
+
+
+
+
