@@ -74,7 +74,7 @@ export default function AuditTrailPage() {
   function formatTime(value: string | null) {
     if (!value) return "No activity";
 
-    const date = new Date(value);
+    const date = new Date(value.replace(" ", "T") + "Z");
 
     if (Number.isNaN(date.getTime())) {
       return value;
@@ -325,3 +325,4 @@ function Stat({
     </div>
   );
 }
+
