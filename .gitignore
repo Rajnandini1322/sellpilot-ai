@@ -45,3 +45,8 @@ next-env.d.ts
 
 /app/generated/prisma
 dev.db
+
+# Local backup folders
+app_backup/
+components_backup/
+lib_backup/

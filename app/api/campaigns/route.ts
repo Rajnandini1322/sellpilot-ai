@@ -6,7 +6,7 @@ import {
   persistSqlite,
 } from "@/lib/db/sqlite";
 
-function getMerchantId(db: any) {
+function getMerchantId(db: Awaited<ReturnType<typeof openSqlite>>) {
   const result = db.exec(`
     SELECT id
     FROM "Merchant"
@@ -18,7 +18,7 @@ function getMerchantId(db: any) {
 }
 
 export async function GET() {
-  let db: any;
+  let db: Awaited<ReturnType<typeof openSqlite>> | undefined;
 
   try {
     db = await openSqlite();
@@ -56,7 +56,7 @@ export async function GET() {
     `);
 
     const campaigns =
-      result?.[0]?.values?.map((row: any[]) => ({
+      result?.[0]?.values?.map((row: unknown[]) => ({
         id: String(row[0]),
         name: String(row[1]),
         type: String(row[2]),
@@ -69,12 +69,11 @@ export async function GET() {
       })) ?? [];
 
     const active = campaigns.filter(
-      (campaign: any) => campaign.status === "ACTIVE"
+      (campaign: { status: string }) => campaign.status === "ACTIVE"
     ).length;
 
     const revenue = campaigns.reduce(
-      (sum: number, campaign: any) =>
-        sum + Number(campaign.revenue || 0),
+      (sum: number, campaign: { revenue: number }) => sum + Number(campaign.revenue || 0),
       0
     );
 
@@ -88,11 +87,16 @@ export async function GET() {
         customersReached,
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Campaign GET error:", error);
 
     return NextResponse.json(
-      { error: "Failed to load campaigns" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to load campaigns",
+      },
       { status: 500 }
     );
   } finally {
@@ -101,16 +105,14 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  let db: any;
+  let db: Awaited<ReturnType<typeof openSqlite>> | undefined;
 
   try {
     const body = await request.json();
 
     const name = String(body.name || "").trim();
     const type = String(body.type || "Recommendation").trim();
-    const audience = String(
-      body.audience || "All customers"
-    ).trim();
+    const audience = String(body.audience || "All customers").trim();
 
     if (!name) {
       return NextResponse.json(
@@ -151,15 +153,7 @@ export async function POST(request: Request) {
       )
       VALUES (?, ?, ?, ?, 'DRAFT', ?, 0, 0, ?, ?)
       `,
-      [
-        id,
-        String(merchantId),
-        name,
-        type,
-        audience,
-        now,
-        now,
-      ]
+      [id, String(merchantId), name, type, audience, now, now]
     );
 
     persistSqlite(db);
@@ -177,11 +171,16 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Campaign POST error:", error);
 
     return NextResponse.json(
-      { error: "Failed to create campaign" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to create campaign",
+      },
       { status: 500 }
     );
   } finally {
@@ -190,7 +189,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-  let db: any;
+  let db: Awaited<ReturnType<typeof openSqlite>> | undefined;
 
   try {
     const body = await request.json();
@@ -243,14 +242,26 @@ export async function PATCH(request: Request) {
       status,
       updatedAt: now,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Campaign PATCH error:", error);
 
     return NextResponse.json(
-      { error: "Failed to update campaign status" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to update campaign status",
+      },
       { status: 500 }
     );
   } finally {
     db?.close();
   }
 }
+
+
+
+
+
+
+

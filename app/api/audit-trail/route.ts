@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
-import {
-  openSqlite,
-  ensureCommerceTables,
-} from "@/lib/db/sqlite";
+import { openSqlite, ensureCommerceTables } from "@/lib/db/sqlite";
 
 export async function GET() {
-  let db: any;
+  let db: ReturnType<typeof openSqlite> extends Promise<infer T> ? T : never | undefined;
 
   try {
     db = await openSqlite();
@@ -50,7 +47,7 @@ export async function GET() {
 
     const rows = result?.[0]?.values || [];
 
-    const events = rows.map((row: any[]) => ({
+    const events = rows.map((row: unknown[]) => ({
       id: String(row[0]),
       action: String(row[1]),
       reason: String(row[2]),
@@ -61,7 +58,7 @@ export async function GET() {
     }));
 
     const successful = events.filter(
-      (event: any) => event.status === "SUCCESS"
+      (event: { status: string }) => event.status === "SUCCESS"
     ).length;
 
     return NextResponse.json({
@@ -69,20 +66,28 @@ export async function GET() {
       stats: {
         total: events.length,
         successful,
-        lastActivity:
-          events.length > 0
-            ? events[0].createdAt
-            : null,
+        lastActivity: events.length > 0 ? events[0].createdAt : null,
       },
     });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Audit GET error:", error);
 
     return NextResponse.json(
-      { error: "Failed to load audit trail" },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Failed to load audit trail",
+      },
       { status: 500 }
     );
   } finally {
     db?.close();
   }
 }
+
+
+
+
+
+
