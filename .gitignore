@@ -50,3 +50,6 @@ dev.db
 app_backup/
 components_backup/
 lib_backup/
+
+# Local README backup
+README.backup.md
