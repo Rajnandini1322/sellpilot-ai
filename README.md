@@ -1,50 +1,156 @@
 # SellPilot AI — Revenue Assistant
 
-SellPilot is a professional AI-assisted commerce prototype for merchant revenue growth.
 
-## Core capabilities
+# SellPilot AI is an AI-assisted commerce platform designed to help merchants increase revenue through intelligent product discovery, upselling, cross-selling, secure checkout, and revenue analytics.
 
-- Merchant dashboard
-- Machine-readable product catalog
-- Search and product discovery
-- Deterministic AI revenue assistant
-- Recommendation, upsell and cross-sell tools
-- Inventory-aware guardrails
-- Explicit approval boundary before payment
-- Razorpay Test Mode Standard Checkout
-- Server-side order creation
-- Server-side HMAC-SHA256 payment verification
-- Idempotent payment/webhook records
-- Audit logging
-- Automated tests
 
-## Tech stack
+# \## 🚀 Key Features
 
-Next.js 16, React 19, TypeScript, Tailwind CSS, Zod, SQL.js/SQLite, Razorpay Test Mode.
 
-## Local setup
+# \- Merchant revenue dashboard
 
-```bash
-npm install
-copy .env.example .env
-node prisma/seed_sql.js
-npm run typecheck
-npm test
-npm run build
-npm run dev
-```
+# \- AI-powered product search and discovery
 
-Open:
+# \- Session-aware recommendations
 
-- `/` — merchant dashboard
-- `/catalog` — catalog and checkout entry
-- `/agent` — revenue assistant
-- `/checkout` — secure Razorpay checkout
+# \- Intelligent upselling
 
-For Razorpay setup, see `docs/RAZORPAY_SETUP.md`.
+# \- Complementary product cross-selling
 
-## Security model
+# \- Inventory-aware recommendations
 
-The AI agent can recommend products but cannot directly charge a customer. Checkout recalculates totals from the server catalog, applies deterministic purchase policy checks, creates the Razorpay Order on the server, and verifies the payment signature before marking an order paid.
+# \- Revenue opportunity detection
 
-Never commit `.env` or a Razorpay Key Secret.
+# \- Add-to-cart functionality
+
+# \- Secure Razorpay Test Mode checkout
+
+# \- Server-side Razorpay order creation
+
+# \- HMAC-SHA256 payment signature verification
+
+# \- Payment and order status tracking
+
+# \- Inventory updates after successful payment
+
+# \- Audit trail for important commerce events
+
+# \- Explicit customer approval before payment
+
+
+# \## 🧠 AI Revenue Flow
+
+
+# Customer Query
+
+# → Product Search
+
+# → Recommendation
+
+# → Upsell / Cross-sell
+
+# → Add to Cart
+
+# → Secure Checkout
+
+# → Customer Approval
+
+# → Razorpay Payment
+
+# → Server-side Verification
+
+# → Order Confirmation
+
+# → Inventory Update
+
+# → Revenue Dashboard
+
+
+# \## 🛠️ Tech Stack
+
+
+# \- Next.js 16
+
+# \- React 19
+
+# \- TypeScript
+
+# \- Tailwind CSS
+
+# \- Zod
+
+# \- SQL.js / SQLite
+
+# \- Prisma
+
+# \- Razorpay Test Mode
+
+# \- REST APIs
+
+
+# \## 📂 Main Routes
+
+
+# | Route | Purpose |
+
+# |---|---|
+
+# | `/` | Merchant Dashboard |
+
+# | `/catalog` | Product Catalog |
+
+# | `/agent` | AI Revenue Assistant |
+
+# | `/checkout` | Secure Checkout |
+
+
+# \## 🔐 Security
+
+
+# SellPilot AI follows an explicit approval boundary for payments.
+
+
+# The AI agent can recommend products and identify revenue opportunities, but it cannot directly charge customers.
+
+
+# Checkout:
+
+
+# 1\. Recalculates the order total from the server-side catalog.
+
+# 2\. Validates the purchase policy.
+
+# 3\. Creates the Razorpay order server-side.
+
+# 4\. Keeps the Razorpay secret key server-side.
+
+# 5\. Verifies the Razorpay payment signature using HMAC-SHA256.
+
+# 6\. Marks the order as paid only after successful verification.
+
+# 7\. Updates inventory after successful payment.
+
+
+# Never commit `.env` or any Razorpay secret key.
+
+
+# \## ⚙️ Local Setup
+
+
+# ```bash
+
+# npm install
+
+# copy .env.example .env
+
+# node prisma/seed\_sql.js
+
+# npx prisma generate
+
+# npm run typecheck
+
+# npm test
+
+# npm run build
+
+# npm run dev
