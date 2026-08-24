@@ -229,6 +229,7 @@ export default function Home() {
           <NavItem
             icon={<Settings size={18} />}
             text="Settings"
+            href="/settings"
           />
 
           <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
@@ -566,6 +567,4 @@ function Opportunity({
     </div>
   );
 }
-
-
 
