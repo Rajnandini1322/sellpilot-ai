@@ -623,11 +623,6 @@ function handleLogout() {
                 text="Well Tested"
               />
             </div>
-
-            <div className="sp-ready-badge">
-              <span />
-              100% INTERNSHIP READY
-            </div>
           </section>
 
           <footer className="sp-footer">
@@ -1002,6 +997,7 @@ function OrdersChart({ orders }: { orders: number }) {
     </div>
   );
 }
+
 
 
 
