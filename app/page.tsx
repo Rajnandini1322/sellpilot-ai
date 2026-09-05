@@ -346,7 +346,7 @@ function handleLogout() {
 
               <h1>
                 Good evening, {merchantName}{" "}
-        <span className="sp-wave">ðŸ‘‹</span>
+        <span className="sp-wave">👋</span>
               </h1>
             </div>
           </div>
@@ -355,7 +355,7 @@ function handleLogout() {
             <div className="sp-search">
               <Search size={16} />
               <span>Search anything...</span>
-          <kbd>âŒ˜ K</kbd>
+          <kbd>⌘ K</kbd>
             </div>
 
             <div className="sp-mode-badge">
@@ -627,11 +627,11 @@ function handleLogout() {
 
           <footer className="sp-footer">
             <span>
-          Â© 2026 SellPilot AI. AI Commerce Intelligence.
+          © 2026 SellPilot AI. AI Commerce Intelligence.
             </span>
 
             <span>
-          Built with Next.js Â· TypeScript Â· Prisma Â· Razorpay
+          Built with Next.js · TypeScript · Prisma · Razorpay
             </span>
           </footer>
         </div>
@@ -997,6 +997,7 @@ function OrdersChart({ orders }: { orders: number }) {
     </div>
   );
 }
+
 
 
 
