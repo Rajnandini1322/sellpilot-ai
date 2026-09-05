@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { ArrowLeft, Settings, ShieldCheck, CreditCard, Bot } from "lucide-react";
 
 export default function SettingsPage() {
   return (
-    <main className="min-h-screen bg-[#08090d] px-6 py-10 text-white">
+    <main className="sp-route-page min-h-screen bg-[#08090d] px-6 py-10 text-white">
       <div className="mx-auto max-w-4xl">
         <Link
           href="/"
@@ -74,3 +74,4 @@ export default function SettingsPage() {
     </main>
   );
 }
+

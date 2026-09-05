@@ -1,4 +1,4 @@
-import fs from "fs";
+﻿import fs from "fs";
 import path from "path";
 import initSqlJs from "sql.js";
 
@@ -95,5 +95,7 @@ export function ensureCommerceTables(db: SqliteDatabase) {
   add("customerName", "TEXT");
   add("customerEmail", "TEXT");
   add("customerContact", "TEXT");
+  add("inventoryDeducted", "INTEGER NOT NULL DEFAULT 0");
 }
+
 

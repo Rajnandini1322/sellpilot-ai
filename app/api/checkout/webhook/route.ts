@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { openSqlite, ensureCommerceTables, persistSqlite } from "@/lib/db/sqlite";
 import { verifyWebhookSignature } from "@/lib/payments/razorpay";
+import { fulfillPaidOrder } from "@/lib/payments/fulfillment";
 
 export async function POST(req: Request) {
   let db: any;
@@ -61,3 +62,4 @@ export async function POST(req: Request) {
     db?.close();
   }
 }
+

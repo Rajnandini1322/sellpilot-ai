@@ -98,7 +98,7 @@ export default function AuditTrailPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#08090d] text-white">
+    <main className="sp-route-page sp-route-page min-h-screen bg-[#08090d] text-white">
       <section className="ml-0 min-h-screen px-8 py-7 md:ml-64">
         <div className="mx-auto max-w-6xl">
 
@@ -325,4 +325,5 @@ function Stat({
     </div>
   );
 }
+
 

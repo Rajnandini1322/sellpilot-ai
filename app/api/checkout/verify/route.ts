@@ -1,7 +1,8 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { z } from "zod";
 import { openSqlite, ensureCommerceTables, persistSqlite } from "@/lib/db/sqlite";
 import { verifyPaymentSignature } from "@/lib/payments/razorpay";
+import { fulfillPaidOrder } from "@/lib/payments/fulfillment";
 
 const BodySchema = z.object({
   localOrderId: z.string().min(1),
@@ -78,3 +79,6 @@ export async function POST(req: Request) {
 function cryptoRandom() {
   return `${Date.now()}_${Math.random().toString(36).slice(2, 12)}`;
 }
+
+
+

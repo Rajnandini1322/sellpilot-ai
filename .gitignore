@@ -56,3 +56,7 @@ README.backup.md
 
 # Backup source files
 *.backup.tsx
+
+# Local UI backups
+backup-ui/
+backup-ui-final/

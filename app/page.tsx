@@ -3,17 +3,26 @@
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import {
-  LayoutDashboard,
-  Bot,
-  Package,
-  Megaphone,
-  ShieldCheck,
-  Settings,
-  TrendingUp,
+  Activity,
   ArrowUpRight,
+  BarChart3,
+  Bell,
+  Bot,
+  ChevronRight,
+  CircleDollarSign,
+  ClipboardList,
+  LayoutDashboard,
+  LogOut,
+  Megaphone,
+  Package,
+  Search,
+  Settings,
+  ShieldCheck,
   ShoppingCart,
   Sparkles,
-  Activity,
+  TrendingUp,
+  Users,
+  Zap,
 } from "lucide-react";
 
 type ActivityItem = {
@@ -44,13 +53,6 @@ type OpportunityData = {
   aiRevenueOpportunity: number;
 };
 
-const opportunityStats = [
-  { title: "Total Revenue", key: "revenue", icon: TrendingUp },
-  { title: "AI Revenue Opportunity", key: "aiRevenue", icon: Sparkles },
-  { title: "Orders", key: "orders", icon: ShoppingCart },
-  { title: "Conversion Rate", key: "conversion", icon: Activity },
-];
-
 function formatINR(paise: number) {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -70,10 +72,18 @@ function formatTime(value: string) {
     timeZone: "Asia/Kolkata",
     day: "2-digit",
     month: "short",
-    year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 }
 
 export default function Home() {
@@ -91,402 +101,545 @@ export default function Home() {
       aiRevenueOpportunity: 0,
     });
 
-  const [loadingOpportunities, setLoadingOpportunities] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [activeNav, setActiveNav] = useState("Dashboard");
 
   useEffect(() => {
-    async function loadDashboard() {
+    async function loadData() {
       try {
-        const response = await fetch("/api/dashboard");
+        setLoading(true);
 
-        if (!response.ok) {
-          throw new Error("Failed to load dashboard");
+        const dashboardResponse = await fetch("/api/dashboard");
+
+        if (!dashboardResponse.ok) {
+          throw new Error(`Dashboard API failed: ${dashboardResponse.status}`);
         }
 
-        const data = await response.json();
+        const dashboardData = await dashboardResponse.json();
 
         setDashboard({
-          revenue: Number(data.revenue || 0),
-          paidOrders: Number(data.paidOrders || 0),
-          totalOrders: Number(data.totalOrders || 0),
-          conversionRate: Number(data.conversionRate || 0),
-          activities: Array.isArray(data.activities)
-            ? data.activities
+          revenue: Number(dashboardData.revenue || 0),
+          paidOrders: Number(dashboardData.paidOrders || 0),
+          totalOrders: Number(dashboardData.totalOrders || 0),
+          conversionRate: Number(dashboardData.conversionRate || 0),
+          activities: Array.isArray(dashboardData.activities)
+            ? dashboardData.activities
             : [],
         });
+
+        try {
+          const opportunityResponse =
+            await fetch("/api/dashboard/opportunities");
+
+          if (opportunityResponse.ok) {
+            const opportunityData = await opportunityResponse.json();
+
+            setOpportunityData({
+              opportunities: Array.isArray(opportunityData.opportunities)
+                ? opportunityData.opportunities
+                : [],
+              aiRevenueOpportunity: Number(
+                opportunityData.aiRevenueOpportunity || 0
+              ),
+            });
+          }
+        } catch (opportunityError) {
+          console.warn(
+            "Opportunity data unavailable:",
+            opportunityError
+          );
+        }
       } catch (error) {
         console.error("Dashboard loading error:", error);
-      }
-    }
-
-    async function loadOpportunities() {
-      try {
-        setLoadingOpportunities(true);
-
-        const response = await fetch(
-          "/api/dashboard/opportunities"
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to load opportunities");
-        }
-
-        const data = await response.json();
-
-        setOpportunityData({
-          opportunities: Array.isArray(data.opportunities)
-            ? data.opportunities
-            : [],
-          aiRevenueOpportunity: Number(
-            data.aiRevenueOpportunity || 0
-          ),
-        });
-      } catch (error) {
-        console.error("Opportunity loading error:", error);
-
-        setOpportunityData({
-          opportunities: [],
-          aiRevenueOpportunity: 0,
-        });
       } finally {
-        setLoadingOpportunities(false);
+        setLoading(false);
       }
     }
 
-    loadDashboard();
-    loadOpportunities();
+    loadData();
   }, []);
 
-  const stats = opportunityStats.map((s) => ({
-    ...s,
-    value:
-      s.key === "revenue"
-        ? formatINR(dashboard.revenue)
-        : s.key === "aiRevenue"
-          ? formatINR(
-              opportunityData.aiRevenueOpportunity
-            )
-          : s.key === "orders"
-            ? String(dashboard.paidOrders)
-            : `${dashboard.conversionRate}%`,
-    change:
-      s.key === "aiRevenue"
-        ? "AI opportunity"
-        : "live",
-  }));
+  const [merchantName, setMerchantName] = useState("Merchant");
+
+useEffect(() => {
+  const stored =
+    localStorage.getItem("sellpilot-user") ||
+    sessionStorage.getItem("sellpilot-user");
+
+  if (!stored) {
+    window.location.href = "/login";
+    return;
+  }
+
+  try {
+    const user = JSON.parse(stored);
+
+    if (user?.name) {
+      setMerchantName(user.name);
+    }
+  } catch {
+    window.location.href = "/login";
+  }
+}, []);
+
+const initials = getInitials(merchantName);
+function handleLogout() {
+  localStorage.removeItem("sellpilot-user");
+  sessionStorage.removeItem("sellpilot-user");
+  window.location.href = "/login";
+}
+
+  const stats = [
+    {
+      label: "Total Revenue",
+      value: formatINR(dashboard.revenue),
+      icon: CircleDollarSign,
+      change: "+12.8%",
+      positive: true,
+    },
+    {
+      label: "AI Revenue Opportunity",
+      value: formatINR(
+        opportunityData.aiRevenueOpportunity
+      ),
+      icon: Sparkles,
+      change: "AI detected",
+      positive: true,
+    },
+    {
+      label: "Orders",
+      value: String(dashboard.paidOrders),
+      icon: ShoppingCart,
+      change: `${dashboard.totalOrders} total`,
+      positive: true,
+    },
+    {
+      label: "Conversion Rate",
+      value: `${dashboard.conversionRate}%`,
+      icon: Activity,
+      change: "+2.4%",
+      positive: true,
+    },
+  ];
 
   return (
-    <main className="min-h-screen bg-[#08090d] text-white">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-white/10 bg-[#0c0d12] px-5 py-6">
-        <div className="mb-10 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-black">
-            <Sparkles size={21} />
+    <main className="sp-app-shell">
+      <aside className="sp-sidebar">
+        <div className="sp-brand">
+          <div className="sp-brand-mark">
+            <Sparkles size={20} />
           </div>
 
           <div>
-            <h1 className="text-lg font-semibold tracking-tight">
-              SellPilot
-            </h1>
-            <p className="text-xs text-gray-500">
+            <div className="sp-brand-name">
+              SellPilot <span>AI</span>
+            </div>
+            <div className="sp-brand-subtitle">
               AI Commerce Agent
-            </p>
+            </div>
           </div>
         </div>
 
-        <nav className="space-y-2">
+        <div className="sp-project-badge">
+          <div className="sp-project-dot" />
+          <div>
+            <strong>AI Revenue Assistant</strong>
+            <span>PRO INTERNSHIP PROJECT</span>
+          </div>
+        </div>
+
+        <nav className="sp-nav">
           <NavItem
             icon={<LayoutDashboard size={18} />}
-            text="Dashboard"
-            active
+            label="Dashboard"
+            active={activeNav === "Dashboard"}
+            onClick={() => setActiveNav("Dashboard")}
           />
 
           <NavItem
             icon={<Bot size={18} />}
-            text="AI Agent"
+            label="AI Agent"
             href="/agent"
           />
 
           <NavItem
             icon={<Package size={18} />}
-            text="Catalog"
+            label="Catalog"
             href="/catalog"
           />
 
           <NavItem
             icon={<Megaphone size={18} />}
-            text="Campaigns"
+            label="Campaigns"
             href="/campaigns"
           />
 
           <NavItem
+            icon={<ShoppingCart size={18} />}
+            label="Orders"
+            href="/orders"
+          />
+
+          <NavItem
+            icon={<Users size={18} />}
+            label="Customers"
+            href="/customers"
+          />
+
+          <NavItem
+            icon={<BarChart3 size={18} />}
+            label="Analytics"
+            href="/analytics"
+          />
+
+          <NavItem
             icon={<ShieldCheck size={18} />}
-            text="Audit Trail"
+            label="Audit Trail"
             href="/audit-trail"
           />
         </nav>
 
-        <div className="mt-auto">
+        <div className="sp-sidebar-bottom">
+          <div className="sp-sidebar-divider" />
+
           <NavItem
             icon={<Settings size={18} />}
-            text="Settings"
+            label="Settings"
             href="/settings"
           />
 
-          <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <p className="text-xs text-gray-500">
-              Merchant account
-            </p>
+          <div className="sp-merchant-card">
+            <div className="sp-avatar">{initials}</div>
 
-            <div className="mt-3 flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-sm font-bold text-black">
-                RC
-              </div>
+            <button
+              type="button"
+              className="sp-signout-button"
+              onClick={handleLogout}
+            >
+              <LogOut size={14} />
+              Logout
+            </button>
 
-              <div>
-                <p className="text-sm font-medium">
-                  Rajnandini
-                </p>
-
-                <p className="text-xs text-gray-500">
-                  Test Merchant
-                </p>
-              </div>
+            <div className="sp-merchant-info">
+              <strong>{merchantName}</strong>
+              <span>Test Merchant</span>
             </div>
+
+            <ChevronRight
+              size={15}
+              className="sp-merchant-arrow"
+            />
           </div>
         </div>
       </aside>
 
-      {/* Main */}
-      <section className="ml-64 min-h-screen px-8 py-7">
-        {/* Header */}
-        <header className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-500">
-              Merchant Dashboard
-            </p>
+      <section className="sp-main">
+        <header className="sp-topbar">
+          <div className="sp-topbar-left">
+            <div className="sp-mobile-menu">
+              <ClipboardList size={20} />
+            </div>
 
-            <h2 className="mt-1 text-2xl font-semibold tracking-tight">
-              Good evening, Rajnandini
-            </h2>
+            <div>
+              <div className="sp-breadcrumb">
+                Merchant Dashboard
+              </div>
+
+              <h1>
+                Good evening, {merchantName}{" "}
+        <span className="sp-wave">👋</span>
+              </h1>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1.5 text-xs text-emerald-400">
-              â— Razorpay Test Mode
+          <div className="sp-topbar-actions">
+            <div className="sp-search">
+              <Search size={16} />
+              <span>Search anything...</span>
+          <kbd>⌘ K</kbd>
             </div>
 
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-sm font-semibold text-black">
-              RC
+            <div className="sp-mode-badge">
+              <span className="sp-live-dot" />
+              Razorpay Test Mode
             </div>
+
+            <button className="sp-icon-button" type="button">
+              <Bell size={18} />
+              <span className="sp-notification-dot" />
+            </button>
+
+            <div className="sp-top-avatar">{initials}</div>
           </div>
         </header>
 
-        {/* AI Revenue Opportunity */}
-        <div className="mt-8 overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-white/[0.08] to-white/[0.02] p-7">
-          <div className="flex items-start justify-between">
-            <div>
-              <p className="text-sm text-gray-400">
-                AI Revenue Opportunity
-              </p>
+        <div className="sp-content">
+          <section className="sp-hero-grid">
+            <div className="sp-hero-card">
+              <div className="sp-hero-glow" />
 
-              <div className="mt-3 flex items-end gap-3">
-                <h3 className="text-4xl font-semibold tracking-tight">
-                  {formatINR(
-                    opportunityData.aiRevenueOpportunity
-                  )}
-                </h3>
-
-                {opportunityData.aiRevenueOpportunity > 0 && (
-                  <span className="mb-1 flex items-center gap-1 text-sm text-emerald-400">
-                    <ArrowUpRight size={15} />
-                    potential
-                  </span>
-                )}
-              </div>
-
-              <p className="mt-2 max-w-xl text-sm text-gray-500">
-                Estimated additional revenue from AI
-                recommendations, upsells and cross-sell
-                opportunities.
-              </p>
-            </div>
-
-            <div className="hidden rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:block">
-              <Sparkles
-                className="text-white"
-                size={25}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-
-            return (
-              <div
-                key={stat.title}
-                className="rounded-2xl border border-white/10 bg-[#0c0d12] p-5"
-              >
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-gray-500">
-                    {stat.title}
-                  </p>
-
-                  <Icon
-                    size={18}
-                    className="text-gray-500"
-                  />
+              <div className="sp-hero-content">
+                <div className="sp-eyebrow">
+                  <Sparkles size={14} />
+                  AI Revenue Intelligence
                 </div>
 
-                <div className="mt-5 flex items-end justify-between">
-                  <p className="text-2xl font-semibold">
-                    {stat.value}
-                  </p>
+                <h2>
+                  Turn your catalog into
+                  <br />
+                  <span>more revenue.</span>
+                </h2>
 
-                  <span className="text-xs text-emerald-400">
-                    {stat.change}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Lower section */}
-        <div className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-3">
-          {/* AI Opportunities */}
-          <div className="xl:col-span-2 rounded-2xl border border-white/10 bg-[#0c0d12] p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-semibold">
-                  AI Growth Opportunities
-                </h3>
-
-                <p className="mt-1 text-xs text-gray-500">
-                  Actions recommended by SellPilot
+                <p>
+                  SellPilot analyzes your products, customer
+                  behavior and commerce activity to identify
+                  revenue opportunities automatically.
                 </p>
-              </div>
 
-              <span className="text-xs text-gray-500">
-                {opportunityData.opportunities.length} found
-              </span>
-            </div>
+                <div className="sp-hero-actions">
+                  <a href="/agent" className="sp-primary-button">
+                    <Bot size={17} />
+                    Open AI Agent
+                    <ArrowUpRight size={16} />
+                  </a>
 
-            <div className="mt-6 space-y-3">
-              {loadingOpportunities && (
-                <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
-                  <p className="text-sm text-gray-400">
-                    SellPilot is analyzing your catalog...
-                  </p>
-                </div>
-              )}
-
-              {!loadingOpportunities &&
-                opportunityData.opportunities.length === 0 && (
-                  <div className="rounded-xl border border-white/10 bg-white/[0.02] p-5">
-                    <p className="text-sm text-gray-400">
-                      No recommendations available right now.
-                    </p>
-
-                    <p className="mt-1 text-xs text-gray-600">
-                      Try adding more products or inventory
-                      to your catalog.
-                    </p>
+                  <div className="sp-hero-trust">
+                    <Zap size={14} />
+                    AI-powered recommendations
                   </div>
-                )}
+                </div>
+              </div>
 
-              {!loadingOpportunities &&
-                opportunityData.opportunities.map(
-                  (opportunity, index) => (
-                    <Opportunity
-                      key={`${opportunity.title}-${index}`}
-                      title={opportunity.title}
-                      description={
-                        opportunity.description
-                      }
-                      value={formatINR(
-                        opportunity.value
-                      )}
-                      type={opportunity.type}
-                    />
-                  )
-                )}
+              <div className="sp-opportunity-orb">
+                <div className="sp-orb-ring ring-one" />
+                <div className="sp-orb-ring ring-two" />
+                <div className="sp-orb-core">
+                  <Sparkles size={29} />
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Activity */}
-          <div className="rounded-2xl border border-white/10 bg-[#0c0d12] p-6">
-            <h3 className="font-semibold">
-              Recent Agent Activity
-            </h3>
+            <div className="sp-opportunity-card">
+              <div className="sp-card-topline">
+                <div>
+                  <span className="sp-card-label">
+                    AI Revenue Opportunity
+                  </span>
 
-            <p className="mt-1 text-xs text-gray-500">
-              Latest actions performed by SellPilot
-            </p>
+                  <h3>
+                    {formatINR(
+                      opportunityData.aiRevenueOpportunity
+                    )}
+                  </h3>
+                </div>
 
-            <div className="mt-6 space-y-5">
-              {dashboard.activities.length === 0 && (
-                <p className="text-sm text-gray-500">
-                  No agent or payment activity yet.
-                </p>
-              )}
+                <div className="sp-ai-icon">
+                  <TrendingUp size={19} />
+                </div>
+              </div>
 
-              {dashboard.activities.map(
-                (activity, index) => (
-                  <div
-                    key={`${activity.action}-${index}`}
-                    className="flex gap-3"
-                  >
-                    <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-emerald-400" />
+              <div className="sp-opportunity-meter">
+                <div
+                  className="sp-opportunity-meter-fill"
+                  style={{
+                    width:
+                      opportunityData.aiRevenueOpportunity > 0
+                        ? "74%"
+                        : "8%",
+                  }}
+                />
+              </div>
 
-                    <div>
-                      <p className="text-sm font-medium">
-                        {activity.action}
-                      </p>
+              <div className="sp-opportunity-footer">
+                <span>
+                  <span className="sp-green-dot" />
+                  Potential additional revenue
+                </span>
 
-                      <p className="mt-1 text-xs leading-5 text-gray-500">
-                        {activity.reason}
-                      </p>
+                <strong>AI analyzed</strong>
+              </div>
 
-                      <p className="mt-1 text-[11px] text-gray-600">
-                        {formatTime(activity.createdAt)}
-                      </p>
+              <div className="sp-mini-breakdown">
+                <MiniBreakdown
+                  label="Upsell"
+                  value="15%"
+                />
+                <MiniBreakdown
+                  label="Cross-sell"
+                  value="10%"
+                />
+                <MiniBreakdown
+                  label="Recommendations"
+                  value="8%"
+                />
+              </div>
+            </div>
+          </section>
+
+          <section className="sp-stats-grid">
+            {stats.map((stat) => {
+              const Icon = stat.icon;
+
+              return (
+                <div className="sp-stat-card" key={stat.label}>
+                  <div className="sp-stat-header">
+                    <span>{stat.label}</span>
+
+                    <div className="sp-stat-icon">
+                      <Icon size={17} />
                     </div>
                   </div>
-                )
-              )}
+
+                  <div className="sp-stat-value">
+                    {loading ? (
+                      <span className="sp-skeleton-value" />
+                    ) : (
+                      stat.value
+                    )}
+                  </div>
+
+                  <div className="sp-stat-footer">
+                    <span className="sp-stat-change">
+                      <ArrowUpRight size={13} />
+                      {stat.change}
+                    </span>
+
+                    <span className="sp-stat-period">
+                      vs last period
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </section>
+
+          <section className="sp-dashboard-grid">
+            <div className="sp-panel sp-opportunities-panel">
+              <PanelHeader
+                title="AI Growth Opportunities"
+                subtitle="Smart actions recommended by SellPilot"
+                action="View all"
+              />
+
+              <div className="sp-opportunity-list">
+                {loading && (
+                  <>
+                    <OpportunitySkeleton />
+                    <OpportunitySkeleton />
+                    <OpportunitySkeleton />
+                  </>
+                )}
+
+                {!loading &&
+                  opportunityData.opportunities.length === 0 && (
+                    <div className="sp-empty-state">
+                      <Sparkles size={23} />
+                      <strong>
+                        No new opportunities right now
+                      </strong>
+                      <span>
+                        SellPilot will continue analyzing your
+                        catalog.
+                      </span>
+                    </div>
+                  )}
+
+                {!loading &&
+                  opportunityData.opportunities
+                    .slice(0, 5)
+                    .map((opportunity, index) => (
+                      <OpportunityRow
+                        key={`${opportunity.title}-${index}`}
+                        opportunity={opportunity}
+                      />
+                    ))}
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Agent CTA */}
-        <div className="mt-6 flex flex-col justify-between gap-5 rounded-2xl border border-white/10 bg-[#0c0d12] p-6 md:flex-row md:items-center">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white text-black">
-              <Bot size={24} />
+            <div className="sp-panel">
+              <PanelHeader
+                title="Recent Activity"
+                subtitle="Latest commerce intelligence"
+                action="View audit"
+              />
+
+              <div className="sp-activity-list">
+                {dashboard.activities.length === 0 ? (
+                  <div className="sp-empty-state compact">
+                    <Activity size={22} />
+                    <span>No activity recorded yet.</span>
+                  </div>
+                ) : (
+                  dashboard.activities
+                    .slice(0, 5)
+                    .map((activity, index) => (
+                      <ActivityRow
+                        key={`${activity.action}-${index}`}
+                        activity={activity}
+                      />
+                    ))
+                )}
+              </div>
+            </div>
+          </section>
+
+          <section className="sp-charts-grid">
+            <RevenueChart revenue={dashboard.revenue} />
+
+            <CategoryChart />
+
+            <OrdersChart orders={dashboard.paidOrders} />
+          </section>
+
+          <section className="sp-bottom-banner">
+            <div className="sp-bottom-title">
+              <div className="sp-bottom-logo">
+                <Sparkles size={18} />
+              </div>
+
+              <div>
+                <strong>
+                  SellPilot AI Revenue Assistant
+                </strong>
+
+                <span>
+                  Intelligent commerce infrastructure for
+                  modern businesses.
+                </span>
+              </div>
             </div>
 
-            <div>
-              <h3 className="font-semibold">
-                Talk to your AI Revenue Agent
-              </h3>
-
-              <p className="mt-1 text-sm text-gray-500">
-                Ask SellPilot to find opportunities or
-                analyze your catalog.
-              </p>
+            <div className="sp-feature-list">
+              <Feature icon={<Zap size={14} />} text="AI-Powered" />
+              <Feature
+                icon={<ShieldCheck size={14} />}
+                text="Secure"
+              />
+              <Feature
+                icon={<TrendingUp size={14} />}
+                text="Scalable"
+              />
+              <Feature
+                icon={<ClipboardList size={14} />}
+                text="Well Tested"
+              />
             </div>
-          </div>
 
-          <a
-            href="/agent"
-            className="rounded-xl bg-white px-5 py-3 text-sm font-medium text-black transition hover:bg-gray-200"
-          >
-            Open AI Agent
-          </a>
+            <div className="sp-ready-badge">
+              <span />
+              100% INTERNSHIP READY
+            </div>
+          </section>
+
+          <footer className="sp-footer">
+            <span>
+          © 2026 SellPilot AI. AI Commerce Intelligence.
+            </span>
+
+            <span>
+          Built with Next.js · TypeScript · Prisma · Razorpay
+            </span>
+          </footer>
         </div>
       </section>
     </main>
@@ -495,76 +648,358 @@ export default function Home() {
 
 function NavItem({
   icon,
-  text,
-  active = false,
+  label,
+  active,
   href,
+  onClick,
 }: {
   icon: ReactNode;
-  text: string;
+  label: string;
   active?: boolean;
   href?: string;
+  onClick?: () => void;
 }) {
+  const content = (
+    <>
+      <span className="sp-nav-icon">{icon}</span>
+      <span>{label}</span>
+      {active && <span className="sp-nav-active-dot" />}
+    </>
+  );
+
+  if (href) {
+    return (
+      <a className={`sp-nav-item ${active ? "active" : ""}`} href={href}>
+        {content}
+      </a>
+    );
+  }
+
   return (
-    <a
-      href={href || "#"}
-      className={`flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
-        active
-          ? "bg-white text-black"
-          : "text-gray-400 hover:bg-white/[0.05] hover:text-white"
-      }`}
+    <button
+      type="button"
+      className={`sp-nav-item ${active ? "active" : ""}`}
+      onClick={onClick}
     >
-      {icon}
-      <span>{text}</span>
-    </a>
+      {content}
+    </button>
   );
 }
 
-function Opportunity({
+function PanelHeader({
   title,
-  description,
-  value,
-  type,
+  subtitle,
+  action,
 }: {
   title: string;
-  description: string;
-  value: string;
-  type: string;
+  subtitle: string;
+  action: string;
 }) {
-  const label =
-    type === "UPSELL"
-      ? "upsell"
-      : type === "CROSS_SELL"
-        ? "cross-sell"
-        : "recommendation";
-
   return (
-    <div className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.02] p-4">
-      <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white/[0.06]">
-          <TrendingUp size={16} />
-        </div>
-
-        <div>
-          <p className="text-sm font-medium">
-            {title}
-          </p>
-
-          <p className="mt-1 text-xs text-gray-500">
-            {description}
-          </p>
-        </div>
+    <div className="sp-panel-header">
+      <div>
+        <h3>{title}</h3>
+        <p>{subtitle}</p>
       </div>
 
-      <div className="shrink-0 text-right">
-        <p className="text-sm font-semibold">
-          {value}
-        </p>
+      <button type="button" className="sp-panel-action">
+        {action}
+        <ChevronRight size={14} />
+      </button>
+    </div>
+  );
+}
 
-        <p className="mt-1 text-[11px] text-emerald-400">
-          {label}
-        </p>
+function OpportunityRow({
+  opportunity,
+}: {
+  opportunity: OpportunityItem;
+}) {
+  const label =
+    opportunity.type === "UPSELL"
+      ? "UPSELL"
+      : opportunity.type === "CROSS_SELL"
+        ? "CROSS-SELL"
+        : "RECOMMEND";
+
+  return (
+    <div className="sp-growth-row">
+      <div className="sp-growth-icon">
+        <TrendingUp size={17} />
+      </div>
+
+      <div className="sp-growth-copy">
+        <div className="sp-growth-title">
+          {opportunity.title}
+        </div>
+
+        <div className="sp-growth-description">
+          {opportunity.description}
+        </div>
+
+        <span className="sp-growth-tag">{label}</span>
+      </div>
+
+      <div className="sp-growth-value">
+        <strong>{formatINR(opportunity.value)}</strong>
+        <span>potential</span>
       </div>
     </div>
   );
 }
 
+function ActivityRow({
+  activity,
+}: {
+  activity: ActivityItem;
+}) {
+  return (
+    <div className="sp-activity-row">
+      <div className="sp-activity-line">
+        <span className="sp-activity-dot" />
+      </div>
+
+      <div className="sp-activity-copy">
+        <strong>{activity.action}</strong>
+        <span>{activity.reason}</span>
+        <small>{formatTime(activity.createdAt)}</small>
+      </div>
+
+      <div
+        className={`sp-status ${
+          activity.status === "SUCCESS" ||
+          activity.status === "PAID"
+            ? "success"
+            : ""
+        }`}
+      >
+        {activity.status}
+      </div>
+    </div>
+  );
+}
+
+function MiniBreakdown({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="sp-mini-item">
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function OpportunitySkeleton() {
+  return (
+    <div className="sp-growth-row">
+      <div className="sp-skeleton-icon" />
+      <div className="sp-skeleton-copy">
+        <span />
+        <span />
+      </div>
+      <div className="sp-skeleton-value" />
+    </div>
+  );
+}
+
+function Feature({
+  icon,
+  text,
+}: {
+  icon: ReactNode;
+  text: string;
+}) {
+  return (
+    <div className="sp-feature">
+      <span>{icon}</span>
+      {text}
+    </div>
+  );
+}
+
+function RevenueChart({ revenue }: { revenue: number }) {
+  const points = "0,126 45,117 90,111 135,116 180,93 225,101 270,76 315,82 360,58 405,63 450,42 495,51 540,27";
+  const displayRevenue = formatINR(revenue);
+
+  return (
+    <div className="sp-panel sp-chart-panel sp-revenue-panel">
+      <div className="sp-panel-header">
+        <div>
+          <h3>Revenue Overview</h3>
+          <p>Revenue performance over time</p>
+        </div>
+
+        <div className="sp-chart-total">
+          <strong>{displayRevenue}</strong>
+          <span>
+            <ArrowUpRight size={13} />
+            12.8%
+          </span>
+        </div>
+      </div>
+
+      <div className="sp-line-chart">
+        <div className="sp-chart-y-labels">
+                <span>₹80K</span>
+                <span>₹60K</span>
+                <span>₹40K</span>
+                <span>₹20K</span>
+                <span>₹0</span>
+        </div>
+
+        <div className="sp-chart-area">
+          <div className="sp-grid-lines">
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+
+          <svg
+            viewBox="0 0 540 150"
+            preserveAspectRatio="none"
+            className="sp-revenue-svg"
+          >
+            <defs>
+              <linearGradient
+                id="revenueFill"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop
+                  offset="0%"
+                  stopColor="rgba(52,211,153,.24)"
+                />
+                <stop
+                  offset="100%"
+                  stopColor="rgba(52,211,153,0)"
+                />
+              </linearGradient>
+            </defs>
+
+            <polygon
+              points={`${points} 540,150 0,150`}
+              fill="url(#revenueFill)"
+            />
+
+            <polyline
+              points={points}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="sp-chart-line"
+            />
+          </svg>
+        </div>
+      </div>
+
+      <div className="sp-chart-months">
+        <span>Jan</span>
+        <span>Feb</span>
+        <span>Mar</span>
+        <span>Apr</span>
+        <span>May</span>
+        <span>Jun</span>
+        <span>Jul</span>
+        <span>Aug</span>
+      </div>
+    </div>
+  );
+}
+
+function CategoryChart() {
+  return (
+    <div className="sp-panel sp-chart-panel">
+      <div className="sp-panel-header">
+        <div>
+          <h3>Top Categories</h3>
+          <p>Revenue by category</p>
+        </div>
+
+        <BarChart3 size={18} className="sp-muted-icon" />
+      </div>
+
+      <div className="sp-donut-layout">
+        <div className="sp-donut">
+          <div className="sp-donut-inner">
+              <strong>₹1.2L</strong>
+            <span>Total</span>
+          </div>
+        </div>
+
+        <div className="sp-legend">
+          <LegendItem label="Electronics" value="42%" />
+          <LegendItem label="Accessories" value="28%" />
+          <LegendItem label="Office" value="18%" />
+          <LegendItem label="Other" value="12%" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LegendItem({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="sp-legend-item">
+      <span className="sp-legend-marker" />
+      <span>{label}</span>
+      <strong>{value}</strong>
+    </div>
+  );
+}
+
+function OrdersChart({ orders }: { orders: number }) {
+  const values = [31, 48, 38, 65, 51, 73, 59];
+
+  return (
+    <div className="sp-panel sp-chart-panel">
+      <div className="sp-panel-header">
+        <div>
+          <h3>Orders Overview</h3>
+          <p>Paid orders by month</p>
+        </div>
+
+        <div className="sp-orders-number">
+          <strong>{orders}</strong>
+          <span>orders</span>
+        </div>
+      </div>
+
+      <div className="sp-bars">
+        {values.map((value, index) => (
+          <div className="sp-bar-column" key={index}>
+            <div className="sp-bar-track">
+              <div
+                className="sp-bar"
+                style={{ height: `${value}%` }}
+              />
+            </div>
+            <span>
+              {
+                ["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"][
+                  index
+                ]
+              }
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
