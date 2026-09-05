@@ -110,7 +110,7 @@ export default function LoginPage() {
           <section className="sp-auth-intro">
             <div className="sp-auth-badge">
               <Zap size={14} />
-              INTERNSHIP PROJECT – PRO LEVEL
+              
             </div>
 
             <h1>
@@ -142,7 +142,6 @@ export default function LoginPage() {
             </div>
 
             <div className="sp-auth-project-note">
-              <strong>75K-LEVEL PROJECT</strong>
               <span>
                 Next.js • TypeScript • Prisma • SQLite • Razorpay • AI
               </span>
@@ -306,3 +305,5 @@ function AuthBenefit({
     </div>
   );
 }
+
+

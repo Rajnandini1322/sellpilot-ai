@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
@@ -244,8 +244,7 @@ function handleLogout() {
           <div className="sp-project-dot" />
           <div>
             <strong>AI Revenue Assistant</strong>
-            <span>PRO INTERNSHIP PROJECT</span>
-          </div>
+            </div>
         </div>
 
         <nav className="sp-nav">
@@ -347,7 +346,7 @@ function handleLogout() {
 
               <h1>
                 Good evening, {merchantName}{" "}
-        <span className="sp-wave">👋</span>
+        <span className="sp-wave">ðŸ‘‹</span>
               </h1>
             </div>
           </div>
@@ -356,7 +355,7 @@ function handleLogout() {
             <div className="sp-search">
               <Search size={16} />
               <span>Search anything...</span>
-          <kbd>⌘ K</kbd>
+          <kbd>âŒ˜ K</kbd>
             </div>
 
             <div className="sp-mode-badge">
@@ -633,11 +632,11 @@ function handleLogout() {
 
           <footer className="sp-footer">
             <span>
-          © 2026 SellPilot AI. AI Commerce Intelligence.
+          Â© 2026 SellPilot AI. AI Commerce Intelligence.
             </span>
 
             <span>
-          Built with Next.js · TypeScript · Prisma · Razorpay
+          Built with Next.js Â· TypeScript Â· Prisma Â· Razorpay
             </span>
           </footer>
         </div>
@@ -845,11 +844,11 @@ function RevenueChart({ revenue }: { revenue: number }) {
 
       <div className="sp-line-chart">
         <div className="sp-chart-y-labels">
-                <span>₹80K</span>
-                <span>₹60K</span>
-                <span>₹40K</span>
-                <span>₹20K</span>
-                <span>₹0</span>
+                <span>â‚¹80K</span>
+                <span>â‚¹60K</span>
+                <span>â‚¹40K</span>
+                <span>â‚¹20K</span>
+                <span>â‚¹0</span>
         </div>
 
         <div className="sp-chart-area">
@@ -932,7 +931,7 @@ function CategoryChart() {
       <div className="sp-donut-layout">
         <div className="sp-donut">
           <div className="sp-donut-inner">
-              <strong>₹1.2L</strong>
+              <strong>â‚¹1.2L</strong>
             <span>Total</span>
           </div>
         </div>
@@ -1003,3 +1002,5 @@ function OrdersChart({ orders }: { orders: number }) {
     </div>
   );
 }
+
+
