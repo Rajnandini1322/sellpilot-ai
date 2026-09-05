@@ -844,11 +844,11 @@ function RevenueChart({ revenue }: { revenue: number }) {
 
       <div className="sp-line-chart">
         <div className="sp-chart-y-labels">
-                <span>â‚¹80K</span>
-                <span>â‚¹60K</span>
-                <span>â‚¹40K</span>
-                <span>â‚¹20K</span>
-                <span>â‚¹0</span>
+                <span>₹80K</span>
+                <span>₹60K</span>
+                <span>₹40K</span>
+                <span>₹20K</span>
+                <span>₹0</span>
         </div>
 
         <div className="sp-chart-area">
@@ -931,7 +931,7 @@ function CategoryChart() {
       <div className="sp-donut-layout">
         <div className="sp-donut">
           <div className="sp-donut-inner">
-              <strong>â‚¹1.2L</strong>
+              <strong>₹1.2L</strong>
             <span>Total</span>
           </div>
         </div>
@@ -1002,5 +1002,6 @@ function OrdersChart({ orders }: { orders: number }) {
     </div>
   );
 }
+
 
 
